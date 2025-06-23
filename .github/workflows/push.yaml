@@ -34,7 +34,7 @@ jobs:
             --clientid "${{ secrets.SF_CONSUMER_KEY }}" \
             --jwtkeyfile server.key \
             --username "${{ secrets.SF_USERNAME }}"
-            --alias prod-org
+            --set-default
             
       - name: Generate delta manifest
         run: |
@@ -47,4 +47,3 @@ jobs:
           sf project deploy start \
             --manifest changed-sources/package/package.xml \
             --test-level RunLocalTests \
-            --target-org prod-org
