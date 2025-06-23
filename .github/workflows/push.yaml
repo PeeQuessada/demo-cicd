@@ -8,30 +8,24 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
         with:
-          node-version: '18'
+          node-version: '14'
+
       - name: 'Checkout source code'
         uses: actions/checkout@v3
         with:
-          fetch-depth: '2'
-            
-      # Now Install Salesforce CLI
-      - name: Install Salesforce CLI2
+          fetch-depth: 0
+
+      - name: Install SFDX CLI
         run: |
-          npm install @salesforce/cli --location=global
+          npm install sfdx-cli --global
           echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
           sf --version
-      - name: Install sfdx-git-delta2
-        run: |
-          echo Y | sf plugins install sfdx-git-delta
-          sf plugins list
 
-      - name: 'Create delta packages'
-        run: | 
-            mkdir changed-sources
-            sf sgd source delta --to "HEAD" --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
-            echo "[INFO] Diff generated"
+      - name: 'Installing sfdx git delta'
+        run: |
+          echo y | sfdx plugins:install sfdx-git-delta
 
       - name: Authenticate via JWT
         run: |
@@ -40,8 +34,16 @@ jobs:
             --clientid "${{ secrets.SF_CONSUMER_KEY }}" \
             --jwtkeyfile server.key \
             --username "${{ secrets.SF_USERNAME }}"
-            --set-default            
-      - name: 'Deploy to environment with running all local tests'
+            
+      - name: Generate delta manifest
         run: |
-            echo "${{ secrets.JWT_SERVER_KEY }}" > server.key
-            sf project deploy start --source-dir changed-sources/force-app --test-level RunLocalTests
+          mkdir changed-sources
+          sf sgd source delta --to "HEAD" --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
+          echo "[INFO] Diff generated"
+
+      - name: Run tests & deploy delta
+        run: |
+          sf project deploy start \
+            --manifest delta/package/package.xml \
+            --test-level RunLocalTests \
+            --target-org targetOrg
