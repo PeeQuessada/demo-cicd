@@ -17,12 +17,15 @@ jobs:
           fetch-depth: '2'
             
       # Now Install Salesforce CLI
-      - name: 'Install sfdx'
-        run: npm install @salesforce/cli --global
-      - name: 'Installing sfdx git delta'
-        run: | 
-            echo Y | sfdx plugins:install sfdx-git-delta
-            sfdx plugins
+      - name: Install Salesforce CLI2
+        run: |
+          npm install @salesforce/cli --location=global
+          echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
+          sf --version
+      - name: Install sfdx-git-delta
+        run: |
+          sf plugins install sfdx-git-delta || true
+          sf plugins list
 
       - name: 'Create delta packages'
         run: | 
