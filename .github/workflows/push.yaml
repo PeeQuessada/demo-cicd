@@ -2,6 +2,8 @@ name: Salesforce CI/CD
 on:
   push:
     branches: [develop, main]
+    paths:
+    - 'force-app/**'
 
 jobs:
   deploy-prod:
@@ -14,7 +16,7 @@ jobs:
       - name: 'Checkout source code'
         uses: actions/checkout@v3
         with:
-          fetch-depth: '0'
+          fetch-depth: '2'
 
       - name: Install SFDX CLI
         run: |
@@ -25,6 +27,7 @@ jobs:
       - name: 'Installing sfdx git delta'
         run: |
           echo y | sfdx plugins:install sfdx-git-delta
+          sfdx plugins
 
       - name: Authenticate via JWT
         run: |
