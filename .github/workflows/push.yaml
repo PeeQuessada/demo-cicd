@@ -16,7 +16,7 @@ jobs:
       - name: 'Checkout source code'
         uses: actions/checkout@v3
         with:
-          fetch-depth: '2'
+          fetch-depth: '0'
 
       - name: Install SFDX CLI
         run: |
@@ -40,7 +40,7 @@ jobs:
       - name: Generate delta manifest
         run: |
           mkdir changed-sources
-          sf sgd source delta --to "HEAD" --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
+          sfdx sgd:source:delta -s force-app --to HEAD --from $GIT_EVENT_BEFORE --output ./changed-sources --generate-delta
           echo "[INFO] Diff generated"
 
       - name: Run tests & deploy delta
