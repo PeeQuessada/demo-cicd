@@ -1,5 +1,5 @@
 public with sharing class DummyClass {
     public DummyClass() {
-        System.debug('This is a dummy class');
+        // System.debug('This is a dummy class');
     }
 }
