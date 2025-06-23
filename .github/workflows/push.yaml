@@ -1,6 +1,6 @@
 name: Salesforce CI/CD
 on:
-  pull_request:
+  push:
     branches: [develop, main]
 
 jobs:
@@ -22,9 +22,9 @@ jobs:
           npm install @salesforce/cli --location=global
           echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
           sf --version
-      - name: Install sfdx-git-delta
+      - name: Install sfdx-git-delta2
         run: |
-          sf plugins install sfdx-git-delta || true
+          echo y | sf plugins install sfdx-git-delta || true
           sf plugins list
 
       - name: 'Create delta packages'
