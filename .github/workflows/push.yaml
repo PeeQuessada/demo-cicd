@@ -1,0 +1,48 @@
+name: Salesforce CI/CD
+on:
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  deploy-prod:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          node-version: '14'
+
+      - name: 'Checkout source code'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install SFDX CLI
+        run: npm install sfdx-cli --global
+
+      - name: 'Installing sfdx git delta'
+        run: |
+          echo y | sfdx plugins:install sfdx-git-delta
+
+      - name: Authenticate via JWT
+        run: |
+          echo "${{ secrets.SF_JWT_KEY }}" > server.key
+          sfdx auth:jwt:grant \
+            --clientid "${{ secrets.SF_CONSUMER_KEY }}" \
+            --jwtkeyfile server.key \
+            --username "${{ secrets.SF_USERNAME }}"
+
+      - name: Collect Delta
+        run: npx sfdx-git-delta -d delta/
+
+      - name: Conditional Deploy
+        run: |
+          BRANCH="${{ github.event.pull_request.base.ref }}"
+          if [ "$BRANCH" = "develop" ]; then
+            sfdx force:source:deploy -d delta/ -u DevOrgAlias
+          elif [ "$BRANCH" = "main" ]; then
+            sfdx force:source:deploy -d delta/ -u ProdOrgAlias
+          fi
+          
+      - name: Run Tests
+        run: sfdx force:apex:test:run -u ${{ github.event.pull_request.base.ref == 'main' }} --wait 10 --resultformat human
