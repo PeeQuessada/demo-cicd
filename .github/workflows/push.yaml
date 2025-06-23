@@ -44,6 +44,6 @@ jobs:
       - name: Run tests & deploy delta
         run: |
           sf project deploy start \
-            --manifest delta/package/package.xml \
+            --manifest changed-sources/package/package.xml \
             --test-level RunLocalTests \
             --target-org targetOrg
