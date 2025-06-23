@@ -8,18 +8,17 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '14'
-
+          node-version: '18'
       - name: 'Checkout source code'
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: '2'
 
       - name: Install SFDX CLI
         run: |
-          npm install sfdx-cli --global
+          npm install @salesforce/cli --global
           echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
           sf --version
 
