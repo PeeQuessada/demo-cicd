@@ -24,7 +24,7 @@ jobs:
           sf --version
       - name: Install sfdx-git-delta2
         run: |
-          echo y | sf plugins install sfdx-git-delta
+          echo Y | sf plugins install sfdx-git-delta
           sf plugins list
 
       - name: 'Create delta packages'
