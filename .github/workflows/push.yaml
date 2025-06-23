@@ -31,18 +31,20 @@ jobs:
             --clientid "${{ secrets.SF_CONSUMER_KEY }}" \
             --jwtkeyfile server.key \
             --username "${{ secrets.SF_USERNAME }}"
-
-      - name: Collect Delta
-        run: npx sfdx-git-delta -d delta/
-
-      - name: Conditional Deploy
+            
+      - name: Generate delta manifest
         run: |
-          BRANCH="${{ github.event.pull_request.base.ref }}"
-          if [ "$BRANCH" = "develop" ]; then
-            sfdx force:source:deploy -d delta/ -u DevOrgAlias
-          elif [ "$BRANCH" = "main" ]; then
-            sfdx force:source:deploy -d delta/ -u ProdOrgAlias
-          fi
-          
-      - name: Run Tests
-        run: sfdx force:apex:test:run -u ${{ github.event.pull_request.base.ref == 'main' }} --wait 10 --resultformat human
+          mkdir delta
+          sf sgd source delta \
+            --from "${{ github.sha }}~1" \
+            --to "${{ github.sha }}" \
+            --output delta \
+            --ignore-whitespace \
+            -d
+
+      - name: Run tests & deploy delta
+        run: |
+          sf project deploy start \
+            --manifest delta/package/package.xml \
+            --test-level RunLocalTests \
+            --target-org targetOrg
