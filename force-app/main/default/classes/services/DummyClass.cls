@@ -7,8 +7,4 @@ public with sharing class DummyClass {
     public List<Account> getAccount(){
         return [SELECT Id FROM Account];
     }
-
-    public List<Contact> getContacts(){
-        return [SELECT Id FROM Contact];
-    }
 }

@@ -6,7 +6,6 @@ private class DummyClassTest {
         Test.startTest();
         DummyClass dummy = new DummyClass();
         List<Account> lstAccount = dummy.getAccount();
-        List<Contact> lstContact = dummy.getContacts();
         Test.stopTest();
     }
 }
