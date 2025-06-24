@@ -11,4 +11,8 @@ public with sharing class DummyClass {
     public List<Contact> getContacts(){
         return [SELECT Id FROM Contact];
     }
+
+    public List<Contact> getContacts2(){
+        return [SELECT Id FROM Contact];
+    }
 }
