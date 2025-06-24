@@ -1,5 +1,10 @@
 public with sharing class DummyClass {
+    
     public DummyClass() {
         System.debug('This is a dummy class with a new line after the header (SFDX)');
+    }
+
+    public List<Account> getAccount(){
+        return [SELECT Id FROM Account];
     }
 }
